@@ -1,0 +1,32 @@
+*{
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+    box-sizing: border-box;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select:none;
+}
+#container{
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+canvas{
+    border: 1px solid #000;
+}
+#placar{
+    position: absolute;
+    top: 790px;
+    left: 270px;
+}
+#vidas{
+    position: absolute;
+    top: 790px;
+    left: 380px;
+}

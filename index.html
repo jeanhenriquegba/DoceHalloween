@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo Doce Halloween - IG: @Dante.Henri</title>
+ <style>
+    body{
+            color:#fff;
+            overflow: hidden;
+            background-color: #222;
+            background-image: linear-gradient(to bottom,#010101 30%,#0a0a0a 49%,#1b143d 69%,#130163 10%,#000);
+            width: 100vw;
+            height: 100vh;
+        }
+    *{
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+    #container{
+        position: absolute;
+        left:50%;
+        top:50%;
+        transform: translate(-50%,-50%);
+    }
+    canvas{
+        border: 1px solid rgb(0, 0, 0);
+    }
+    #menu{
+        position: absolute;
+        background-image: url(img/TelaInicial.png);
+        top: 50%;
+        left:50%;
+        transform: translate(-50%,-50%);
+        width: 1280px;
+        height: 720px;
+        background-color: rgba(0, 0, 0, 0.7);
+        border: 0px solid rgba(255, 115, 0,0.2);
+        visibility: block;
+        
+        animation-duration: 2s;
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+        opacity: 1;
+
+        user-select: none;
+    }
+    #logo{
+        position: absolute;
+        left: 15px;
+        top:27px;
+        animation: logonimation 2s linear infinite;
+    }
+    #Btnjogar{
+        position: absolute;
+        top: 80%;
+        left: 49.5%;
+        transform: translateX(-50%);
+        background-color: transparent;
+        background-image: url(img/btnjogar0.png);
+        width: 180px;
+        height: 80px;
+        border: 0px solid #000;
+        cursor: pointer;
+    }
+    #Btnjogar:hover{
+        background-image: url(img/btnjogar1.png);
+    }
+    #dedicatiria{
+        position: absolute;
+        left:45%;
+        top:15%;
+        font-size: 18px;
+        color: red;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        visibility: hidden;
+}
+#btnControles{
+    position: absolute;
+    left: 85%;
+    top: 2%;
+    background-color: transparent;
+    width: 160px;
+    height:82px;
+    cursor: pointer;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+#controles{
+    position: absolute;
+    top: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0,0.8);
+    z-index: 99;
+    visibility: hidden;
+}
+#tutorial{
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 100%;
+}
+#btnFechar{
+    position: absolute;
+    left: 85%;
+    top: 5%;
+    cursor: pointer;
+    background-color: #2b2b2b;
+    width: 152px;
+    height: 40px;
+    padding-left: 9px;
+    transform: rotate(0deg);
+    padding-top: 1px;
+    color: #8c00ff;
+    font-weight: 600;
+    border-radius: 5px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 30px;
+    z-index: 2;
+}
+#btnFechar:hover{
+    color:#ac46ff;
+    background-color: #616161;
+}
+/* Animações */
+    @keyframes logonimation {
+        0%{top:27px;}
+        50%{top:50px;transform: rotate(-3deg);}
+        70%{top:50px;transform: rotate(3deg);}
+        100%{top:27px;}
+    }
+    @keyframes menunimation{
+        0%{opacity: 1;}
+        100%{opacity: 0;}
+    }
+    </style>
+</head>
+<body>
+    <div id="container">
+    <div id="menu"><img src="img/logo.png" id="logo" alt="logotipo">
+    <div id="btnControles"><img src="img/teclado.png" alt="teclado" title="Controles Do Jogo"></div>
+    
+    <div id="controles">
+        <div id="btnFechar">FECHAR</div>
+        <img src="img/tutorial.png" id="tutorial">
+    </div>
+    <p id="dedicatiria">
+    A programação deste jogo foi um projeto desenvolvido com auxilio de aulas e pesquisas na web, 
+    muito café e exercicios de programação para jogos.  
+    <br><br>
+    Meus agradecimentos especiais a Jade e a Munique, que estiveram presente durante quase todo processo.
+    <br><br>
+    Este mini-Jogo está sendo desenvolvido a mais de um Mês de ideias, e implementações.
+    <br><br>
+    Enfim, obrigado por jogar!!
+    </p>
+    <button id="Btnjogar"></button>
+    </div>
+    <canvas width="1280" height="720"></canvas>
+    </div>
+<script>
+/*
+
+██████╗  ██████╗  ██████╗███████╗    ._                        _.
+██╔══██╗██╔═══██╗██╔════╝██╔════╝    ) \__     .      .     __/ (
+██║  ██║██║   ██║██║     █████╗     )_\  '\___/'\_╮╮_/'\___/'  /_(
+██║  ██║██║   ██║██║     ██╔══╝      )_\ __-'-.◢◣__◢◣.-'-__ /_(
+██████╔╝╚██████╔╝╚██████╗███████╗      \./   '.  ▼--▼  .'    \./
+╚═════╝  ╚═════╝  ╚═════╝╚══════╝              `-....-` 
+
+██╗  ██╗ █████╗ ██╗     ██╗      ██████╗ ██╗    ██╗███████╗███████╗███╗   ██╗
+██║  ██║██╔══██╗██║     ██║     ██╔═══██╗██║    ██║██╔════╝██╔════╝████╗  ██║
+███████║███████║██║     ██║     ██║   ██║██║ █╗ ██║█████╗  █████╗  ██╔██╗ ██║
+██╔══██║██╔══██║██║     ██║     ██║   ██║██║███╗██║██╔══╝  ██╔══╝  ██║╚██╗██║
+██║  ██║██║  ██║███████╗███████╗╚██████╔╝╚███╔███╔╝███████╗███████╗██║ ╚████║
+╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝ ╚═════╝  ╚══╝╚══╝ ╚══════╝╚══════╝╚═╝  ╚═══╝
+                                                                                Documentação
+
+*/
+//════════▓┣━▇_╮    Biblioteca De Elementos DOM   ╭_▇━┫▓═══════════════════════════════════════════════════//
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━//
+const cnv = document.querySelector("canvas");           // Captura Do Canvas
+const ctx = cnv.getContext("2d");                       // Captura Do Contexto
+const body = document.querySelector("body");            // Captura Do Corpo Do Site
+const btnJogar = document.querySelector("#Btnjogar");   // Botão Jogar
+const menuInicial = document.querySelector('#menu');    // Captura Do Elemento Do Menu Inicial
+const btnControles = document.querySelector("#btnControles");
+const btnFechar = document.querySelector("#btnFechar");
+const tutorial = document.querySelector("#controles");
+//--------------------------------------------------------------------------------------------------------//
+//
+//
+//════════▓┣━▇_╮    Biblioteca De Variaveis Globais e DataBase dos Sprites   ╭_▇━┫▓════════════════════════//
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━//
+const spritesDB = ['img/background.png','img/bat.png','img/doce.png','img/projetil.png','img/initjogo.png','img/fimjogo.png','img/heart.png','img/batred.png','img/batboost.png','img/hud.png','img/bolha.png','img/aranha.png','img/cranio.png']; // Array de sprites
+const parallaxDB = ['img/parallax/fundo.png','img/parallax/intermedio.png','img/parallax/medio.png','img/parallax/frontal.png']
+//
+const teclaEsquerda = 65;       // Tecla De Controle De Movimento Esquerda
+const teclaDireita = 68;        // Tecla De Controle De Movimento Direita
+const teclaBaixo = 83;          // Tecla De Controle De Movimento Baixo
+const teclaCima = 87;           // Tecla De Controle De Movimento Cima
+const teclaEspaco = 32;         // Tecla De Controle De Ação Espaço
+const teclaE = 69;              // Tecla De Controle De Ação E
+const teclaEsquerdaSeta = 37;
+const teclaDireitaSeta = 39;
+const teclaBaixoSeta = 40;
+const teclaCimaSeta = 38;
+//
+let moverEsquerda = moverDireita = moverCima = moverBaixo = false;  // Controle Boleano De Movimento, Default = false
+//
+let coletaveisNum = 3;          // Quantidade De Coletaveis/Doces Na Tela
+let projeteisNum = 3;           // Quantidade De Projeteis Na Tela
+//
+let coletavelVelocidade = 3;    // Velocidade De Deslocamento No Eixo X Do Coletavel
+let projeteisVelocidade = 3;    // Velocidade De Deslocamento No Eixo X Do Projetil
+//
+let coletaveisArray = [];       // Onde São Armazenados Todos os Coletaveis
+let projeteisArray = [];        // Onde São Armazenados Todos os Projeteis
+let cranioSolto = [];           // Onde É Armazenado O Crânio Que A Aranha Solta
+//--------------------------------------------------------------------------------------------------------//
+//
+//
+//════════▓┣━▇_╮    Biblioteca De Event Listeners   ╭_▇━┫▓═════════════════════════════════════════════════//
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━//
+window.addEventListener("keydown",keydownHandler,false);    // Quando Preciona As Teclas
+window.addEventListener("keyup",keyUpHandler,false);        // Quando Solta As Teclas
+btnJogar.addEventListener("click",function(){                     // Quando Clicar Sobre O Botão Jogar
+    menuInicial.style.animationName = 'menunimation'        // Troca A Animação Do Menu
+    this.remove();
+    btnControles.remove();                                          // Remove O Botão Jogar Da Tela
+    jogarPressionado();                                     // Inicia O Jogo
+});
+btnControles.addEventListener("click",function(){
+    tutorial.style.visibility = 'visible';
+});
+btnFechar.addEventListener("click",function(){
+    tutorial.style.visibility = 'hidden';
+});
+//--------------------------------------------------------------------------------------------------------//
+//
+//
+//════════▓┣━▇_╮    Biblioteca De Objetos   ╭_▇━┫▓═════════════════════════════════════════════════════════//
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━//
+let jogo = {                        // Configuração Do Jogo
+    pontuacao:0,                    // Registro De Pontuação
+    gameOver:false,                 // Estado De Fim De Jogo
+    jogarPlay:false,                // Checa Se O Jogo Está Rodando
+    vidas: 4,                       // Quantidade De Vidas Que O Jogador Tem
+    jogando:false,                  // Checa Se O Jogador Está Jogando
+    multiplicador: 10,              // Controlador De Recompensa
+    gameOverAudioTocou:false,       // Controlar Se O Audio Do Fim De Jogo Tocou
+    docesPerdidos: 0               // Doces que foram perdidos para tela de Fim De Jogo
+};
+//
+let jogadorObj = {                  // Configuração Do Jogador
+    x:310,                          // Posição Do Eixo X
+    y:0,                            // Posição Do Eixo Y
+    velocidade:5,                   // Velocidade De Movimento
+    largura:105,                    // Largura Do Jogador
+    altura:41,                      // Altura Do Jogador
+    cor: 'transparent',             // Cor Do Objeto
+    boostSpeed: false,              // Checa Se O Jogador Ganhou Ou Não O Boost De Velocidade
+    recebeuDano: false,             // Checa Se O Jogador Foi Atingido Por Algum Projetil
+    bolhacarregada: false,          // Especial que gera uma bolha que protege o personagem
+    bolhapontos: 0                  // Contagem para bolha
+};
+//
+const aranhaDB = {                  // Configurações Da Aranha
+    x:200,                          // Posição Inicial De Segurança
+    y:-185,                         // Posição Inicial De Segurança
+    estado : 'DORMINDO'             // Estado Inicial Da Aranha
+};
+//--------------------------------------------------------------------------------------------------------//
+//
+//
+//════════▓┣━▇_╮    Biblioteca De Classes   ╭_▇━┫▓═════════════════════════════════════════════════════════//
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━//
+function SpriteBolha(img,x,y){
+    this.srcX = this.srcY = 0;
+    this.x = x;
+    this.y = y;
+    this.img = img;
+    this.width = 107;
+    this.height = 85
+    this.draw = function (ctx,posX,posY){
+        ctx.drawImage(this.img,this.srcX,this.srcY,this.width,this.height,posX,posY - 20,this.width,this.height)
+    }
+}
+function SpritesColetaveis(img){                   // Classe Para Coletaveis E Projeteis  
+    this.srcX = this.srcY = 0;                  // Define Posição X e Y
+    this.img = img;                             // Define Imagem
+    this.draw = function(ctx,posX,posY){        // Função Que Desenha
+    ctx.drawImage(this.img,this.srcX,this.srcY,this.width,this.height,posX,posY,this.width,this.height)};
+};
+//
+
+function SpriteMorcego(img){                    // Classe Que Desenha e Anima O Jogador
+    this.srcX = this.srcY = 0;                  // Define Posição No Eixo X e Y
+    this.width = 105;                           // Define Largura
+    this.height = 41;                           // Define Altura
+    this.loop = 1;                              // 1 Para Contando Loop Ativo, 0 Para Congelado
+    this.img = img;                             // Define Imagem
+    this.countAnimation = 0;                    // Variavel De Controle De Quadros
+    this.animapixel = 5;                        // Variavel De Controle De Loops Animados
+    this.draw = function(ctx,posX,posY){        // Função Que Desenha
+    ctx.drawImage(this.img,this.srcX,this.srcY,this.width,this.height,posX,posY,this.width,this.height);
+    this.animation();};                         // Chama A Função De Desenho
+
+    this.animation = function(){                // Função Que Anima A Sprite
+    if(this.loop > 0){                          // Entrada De Controle
+            this.countAnimation++;              // Contador De Quadros
+    if(this.countAnimation < this.animapixel){  // Condicional Responsavel Pela Animação
+        this.srcX = 0;
+    }else if(this.countAnimation > this.animapixel + 5 && this.countAnimation < this.animapixel + 8){
+        this.srcX = 105;
+    }else if(this.countAnimation > this.animapixel + 13 && this.countAnimation < this.animapixel + 18){
+        this.srcX = 210;
+    }else if(this.countAnimation > this.animapixel + 25&& this.countAnimation < this.animapixel + 28){
+        this.srcX = 315;
+    }else if(this.countAnimation > this.animapixel + 35&& this.countAnimation < this.animapixel + 38){
+        this.srcX = 210;
+    }else if(this.countAnimation > this.animapixel + 45&& this.countAnimation < this.animapixel + 48){
+        this.srcX = 105;
+    }else if(this.countAnimation > this.animapixel + 55&& this.countAnimation < this.animapixel + 58){
+        this.countAnimation = 0;
+    }}};
+};
+//
+function Parallax(img,velocidade){
+    this.x = 0;
+    this.width = 1280;
+    this.height = 720;
+    this.img = img;
+    this.velocidade = velocidade;
+
+this.draw = function(cnv,ctx){
+    const imgLargura = this.width;
+    this.x -= this.velocidade;
+
+    if(this.x <= -imgLargura){
+        this.x = 0;
+    }
+
+    ctx.drawImage(this.img,this.x,0,this.width,this.height);
+    ctx.drawImage(this.img,this.x + imgLargura,0,this.width,this.height)
+
+};
+};
+//
+function Aranha(img){
+    this.srcX = this.srcY = 0;
+    this.width = 92;
+    this.height = 184;
+    this.loop = 1;
+    this.img = img;
+    this.velocidade = 3;
+
+    // propriedades
+    this.apareceu = false;
+    this.largouCranio = false;
+    this.viuPersonagem = false;
+
+    this.draw = function(ctx,x,y){
+        ctx.drawImage(this.img,this.srcX,this.srcY,this.width,this.height,x,y,this.width,this.height);
+        this.animation();
+    };
+
+    this.soltarObjeto = function(){
+        if(!this.largouCranio){
+            const novoCranio = new Cranio(cranioIMG,aranhaDB.x + (this.width/2) - 15,aranhaDB.y + (this.height) - 15)
+            cranioSolto.push(novoCranio);
+            this.largouCranio = true;
+            console.log("Soltou o cranio");
+            setTimeout(() => {
+            aranhaDB.estado = 'SUBINDO'
+            }, 2000);
+        }
+    };
+
+    this.animation = function(){
+       const posicaoFinal = 0;
+
+       switch(aranhaDB.estado){
+    case 'DESCENDO': //move para baixo
+        if(aranhaDB.y < posicaoFinal){
+            ctx.drawImage(cranioIMG,aranhaDB.x + (this.width/2) - 15,aranhaDB.y + (this.height) - 15, 32,32)
+            aranhaDB.y += this.velocidade
+        } else {
+            aranhaDB.y = posicaoFinal;
+            aranhaDB.estado = 'SOLTANDO';
+        }
+        break;
+        case 'SOLTANDO':
+            this.soltarObjeto();
+            break;
+
+        case 'SUBINDO' :
+            const posicaoInicial = -185;
+        if(aranhaDB.y > posicaoInicial){
+            aranhaDB.y -= this.velocidade;
+            
+          
+        } else {
+            aranhaDB.y = posicaoInicial;
+            aranhaDB.estado = 'DORMINDO';
+            this.largouCranio = false;
+        }
+        break;
+        case 'DORMINDO':
+
+        aranhaDB.x = jogadorObj.x; // Ela irá aparecer sobre o jogador
+
+
+        /*
+            if(Math.random () < 0.01){
+                const max_x = cnv.width - this.width;
+                aranhaDB.x = Math.floor(Math.random() * max_x);
+            } 
+            
+        */ 
+        //Deixarei este código aqui, caso queira Colocar ela para Aparecer Randomicamente pela tela
+            break;
+
+       }
+    };
+};
+//
+function Cranio(img,x,y){
+    this.alturaMaxima = 1280;
+    this.x = x;
+    this.y = y;
+    this.largura = 32;
+    this.altura = 32;
+    this.velocidadeY = 5;
+    this.img = img;
+    
+    this.update = function(){
+        this.y += this.velocidadeY;
+      
+    }
+    this.draw = function(ctx){
+    ctx.drawImage(this.img,this.x,this.y,this.largura,this.altura);
+    };
+
+}; 
+//--------------------------------------------------------------------------------------------------------//
+//
+//
+//════════▓┣━▇_╮    Biblioteca De new Images   ╭_▇━┫▓══════════════════════════════════════════════════════//
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━//
+    const background = new Image();                         // Cria Imagem Background
+    background.src = spritesDB[0];                          // Define Origem Da Imagem
+    const skinMorcego = new Image();                        // Cria Imagem Skin Do Morcego
+    skinMorcego.src = spritesDB[1];                         // Define Origem Da Imagem
+    var jogadorSkin = new SpriteMorcego(skinMorcego);       // Invoca Classe Com Skin Do Morcego
+    const doce = new Image();                               // Cria Imagem Dos Doces
+    doce.src = spritesDB[2];                                // Define Origem Da Imagem
+    var doces = new SpritesColetaveis(doce);                // Invoca Classe Com Skin Dos Doces
+    const projetilimg = new Image();                        // Cria Imagem Projeteis
+    projetilimg.src = spritesDB[3];                         // Define Origem Da Imagem
+    var projeteis = new SpritesColetaveis(projetilimg);     // Invoca Classe Com Skin Dos Projeteis
+    const telaInit = new Image();                           // Cria Imagem Da Tela Inicial
+    telaInit.src = spritesDB[4];                            // Define Origem Da Imagem
+    const telafim = new Image();                            // Cria Imagem Da Tela Do Fim De Jogo
+    telafim.src = spritesDB[5];                             // Define Origem Da Imagem
+    const batheart = new Image();                           // Cria Imagem Das Vidas Do Morcego
+    batheart.src = spritesDB[6];                            // Define Origem Da Imagem
+    const hudperso = new Image();
+    hudperso.src = spritesDB[9];
+    const bolhaimg = new Image();
+    bolhaimg.src = spritesDB[10];
+    var bolhaprotecao = new SpriteBolha(bolhaimg,jogadorObj.x,jogadorObj.y);
+
+    //Efeito Parallax, Imagens E Suas velocidades
+    const imgParallaxFundo = new Image();
+    imgParallaxFundo.src = parallaxDB[0];
+    const ParallaxFundo = new Parallax(imgParallaxFundo,0.2);
+
+    const imgParallaxIntermedio = new Image();
+    imgParallaxIntermedio.src = parallaxDB[1];
+    const parallaxIntermedio = new Parallax(imgParallaxIntermedio,0.5);
+
+    const imgPllxMedio = new Image();
+    imgPllxMedio.src = parallaxDB[2];
+    const parallaxMedio = new Parallax(imgPllxMedio,1);
+
+    const imgPllxFrontal = new Image();
+    imgPllxFrontal.src = parallaxDB[3];
+    const parallaxFrotal = new Parallax(imgPllxFrontal,1.7);
+
+    const aranhaImg = new Image();
+    aranhaImg.src = spritesDB[11];
+    const aranhaObj = new Aranha(aranhaImg);
+    const cranioIMG = new Image();
+    cranioIMG.src = spritesDB[12];
+//--------------------------------------------------------------------------------------------------------//
+//
+//
+//════════▓┣━▇_╮    Biblioteca De Audios   ╭_▇━┫▓══════════════════════════════════════════════════════════//
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━//
+    const themesong = new Audio('audio/beepbox.mp3');                   // Audio Tema Do Jogo
+    const coletouAudio = new Audio('audio/coletou.mp3');                // Audio Coletou Doce
+    const danoAudio = new Audio('audio/dano.wav');                      // Audio Recebeu Dano
+    const gameOverAudio = new Audio('audio/gameover.wav');              // Audio Fim De Jogo
+    const bolhaEstourando = new Audio('audio/bolhaestourando.mp3');     // Som da bolha estourando
+//
+    themesong.loop = true;                                  // Define Que O Tema Do Jogo Irá Tocar Em Loop
+    themesong.volume = 0.2;                                 // Volume Do Tema
+    gameOverAudio.volume = 0.5;                             // Volume Do Fim De Jogo
+    bolhaEstourando.volume = 0.5;                           // Volume Da Bolha Estourando
+//--------------------------------------------------------------------------------------------------------//
+//
+//
+//════════▓┣━▇_╮    Biblioteca De Funções De Desenho   ╭_▇━┫▓══════════════════════════════════════════════//
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━//
+function desenharJogador(){                     // Função Responsavel Por Desenhar Os Estados Do Jogador
+    jogadorSkin.draw(ctx,jogadorObj.x,jogadorObj.y) // Desenha A Sprite De Acordo Com A Posição Do Objeto Do Jogador
+    if(jogadorObj.recebeuDano){                     // Checa Se O Jogador Recebeu Dano
+        skinMorcego.src = spritesDB[7];             // Troca Imagem Para Recebeu Dano
+    } else if(jogadorObj.boostSpeed){               // Checa Se O Jogador Está Com Boost De Velocidade Ativo
+        skinMorcego.src = spritesDB[8];             // Troca Imagem Do Jogador Para A Do Boost
+    } else {                                        // Caso Nenhuma Das Alternativas Anteriores Seja Ativa
+       skinMorcego.src = spritesDB[1];              // Skin Padrão Do Jogador
+    };
+};
+//
+function desenharColetavel(coletavel){              // Função Responsavel Por Desenhar Os Doces
+        ctx.drawImage(coletavel.img,0,0,58,32,coletavel.x,coletavel.y,coletavel.largura,coletavel.altura);
+};
+//
+function desenharProjeteis(projetil){               // Função Responsavel Por Desenhar Os Projeteis
+        ctx.drawImage(projetil.img,0,0,58,32,projetil.x,projetil.y,projetil.largura,projetil.altura);
+};
+//
+function resetaPosColetavel(coletavel){             // Função Responsavel Por Desenhar Na Tela Os Coletaveis
+    coletavel.largura = 58;                         // Define Largura
+    coletavel.altura = 32;                          // Define Altura
+    coletavel.img = doce;                           // Define Origem Da Imagem
+    const posAleatoria = Math.random() * cnv.width * 1.5;   // Define Uma Posição Aleatória Baseado na Largura Do Canvas
+    coletavel.x = cnv.width + posAleatoria;                 // Define Posição No Eixo X Que O Doce Irá Ser Gerado
+    coletavel.y = Math.random() * (cnv.height - (coletavel.altura || 32)); // Define Uma Posição Aleatória Dentro Dos Limites Verticais Do Canvas
+};
+//
+function resetaPosProjetil(projetil){               // Função Responsavel Por Desenhar Na Tela Os Projeteis
+    projetil.largura = 64;                          // Define Largura
+    projetil.altura = 32;                           // Define Altura
+    projetil.img = projetilimg;                     // Define Origem Da Imagem
+    const posAleatoria = Math.random() * cnv.width * 1.5;   // Define Uma Posição Aleatória Baseado na Largura Do Canvas
+    projetil.x = cnv.width + posAleatoria;                  // Define Posição No Eixo X Que O Projetil Irá Ser Gerado
+    projetil.y = Math.random() * (cnv.height - (projetil.altura || 64)) // Define Uma Posição Aleatória Dentro Dos Limites Verticais Do Canvas
+};
+//--------------------------------------------------------------------------------------------------------//
+//
+//
+//════════▓┣━▇_╮    Biblioteca De Funções Laços FOR   ╭_▇━┫▓═══════════════════════════════════════════════//
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━//
+function gerarColetaveis(){                                 // Função Responsavel Por Gerar Os Coletaveis
+    for(let i = 0; i < coletaveisNum; i++){                 // Controle FOR
+        const novoColetavel = {};                           // Cria Um Novo Objeto      
+        resetaPosColetavel(novoColetavel);                  // Utiliza A Função Que Desenha O Coletavel Na Tela, Usando O Objeto Vazio Como Entrada
+/*
+        Logo Após O Objeto Criado Pegar Todas as Configurações Da Função Anterior
+*/
+        novoColetavel.x += i * (cnv.width / coletaveisNum); // Ajusta A Posição Dele Decrescente
+        coletaveisArray.push(novoColetavel);                // Insere O Objeto Criado E Configurado Dentro Do Laço Dos Coletaveis
+    };
+};
+//
+function gerarProjeteis(){                                  // Função Responsavel Por Gerar Os Projeteis
+    for(let i = 0; i < projeteisNum; i++){                  // Controle FOR
+        const novoProjetil = {};                            // Cria Um Novo Objeto
+        resetaPosProjetil(novoProjetil);                    // Utiliza A Função Que Desenha O Projetil Na Tela, Usando O Objeto Vazio Como Entrada
+/*
+        Logo Após O Objeto Criado Pegar Todas as Configurações Da Função Anterior
+*/
+        novoProjetil.x += i * (cnv.width / projeteisNum);   // Ajusta A Posição Dele Decrescente
+
+        projeteisArray.push(novoProjetil);                  // Insere O Objeto Criado E Configurado Dentro Do Laço Dos Projeteis
+    }
+};
+//
+function validarColisaoColetaveis(j,c){                     // Função Responsavel Por Checar Todas as Colisões
+    return j.x < c.x + c.largura &&                         // Direita
+           j.x + j.largura > c.x &&                         // Esquerda
+           j.y < c.y + c.altura &&                          // Cima
+           j.y + j.altura > c.y;                            // Baixo
+};
+//--------------------------------------------------------------------------------------------------------//
+//
+//
+//════════▓┣━▇_╮    Biblioteca De Funções De Movimentação   ╭_▇━┫▓═════════════════════════════════════════//
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━//
+function keydownHandler(e){                 // Função De Controle Teclas Pressionadas
+        var key = e.keyCode;                // Captura Numeração Da Tecla Precionada
+        if (key === teclaEspaco || key === teclaCima || key === teclaBaixo || key === teclaDireita || key === teclaEsquerda) {
+        e.preventDefault();                 // Função Responsavel Por Impedir O Comportamento Padrão Dos Eventos Do Navegador
+        };
+        if(key === teclaCima || key === teclaCimaSeta && key !== teclaBaixo){
+            moverCima = true;
+        };
+        if(key === teclaBaixo || key === teclaBaixoSeta && key !== teclaCima){
+            moverBaixo = true;
+        };
+        if(key === teclaDireita || key === teclaDireitaSeta && key !== teclaEsquerda){
+            moverDireita = true;
+        }; 
+        if(key === teclaEsquerda || key === teclaEsquerdaSeta  && key !== teclaDireita){
+            moverEsquerda = true;
+        };
+//
+        if(key === teclaEspaco && jogo.gameOver === true){  // Checa Se O Fim De Jogo Aconteceu, Para Poder Liberar a Tecla
+            jogo.gameOver = false;                          // Define O Fim De Jogo Para Falso
+            jogo.vidas = 4;                                 // Redefine As vidas Para Três
+            jogadorObj.bolhapontos = 0;
+            jogadorObj.bolhacarregada = false;
+            jogo.pontuacao = 0;                             // Redefine Pontução Para Zero
+            jogo.multiplicador = 10;                        // Redefine O Multiplicador para 10 Novamente.
+            coletaveisArray = [];                           // Limpa Array Coletaveis
+            projeteisArray = [];                            // Limpa Array Projeteis
+            gerarColetaveis();                              // Gera Novos Coletaveis
+            gerarProjeteis();                               // Gera Novos Projeteis
+            jogadorObj.y = (cnv.height / 2 - (jogadorObj.altura / 2) - 90); // Define Nova Posição Do Jogador Eixo Y
+            jogadorObj.x = 310;                                             // Define Nova Posição Do Jogador Eixo X
+            gameOverAudio.pause();                                          // Pausa O Audio De Fim De Jogo
+            themesong.currentTime = 0;                                      // Zera O Tempo Do Audio Do Tema
+            themesong.play();                                               // Toca O Audio Do Tema
+            jogo.gameOverAudioTocou = false;                                // Reseta Audio De Fim De Jogo, Para que Possa Ser Tocado Novamente Assim que Fim De Jogo For Ativo Outra Vez
+        };
+        if(key === teclaE && jogadorObj.bolhapontos == 147){
+            jogadorObj.bolhacarregada = true;
+            jogadorObj.bolhapontos = 0;
+        }
+};
+//
+function keyUpHandler(e){                   // Função De Controle Teclas Soltas
+        var key = e.keyCode;                // Captura Numeração Da Tecla Solta
+        if(key === teclaCima || key === teclaCimaSeta && key !== teclaBaixo){
+            moverCima = false;
+        };
+        if(key === teclaBaixo || key === teclaBaixoSeta && key !== teclaCima){
+            moverBaixo = false;
+        };
+        if(key === teclaDireita || key === teclaDireitaSeta && key !== teclaEsquerda){
+            moverDireita = false;
+        };
+        if(key === teclaEsquerda || key === teclaEsquerdaSeta && key !== teclaDireita){
+            moverEsquerda = false;
+        };
+};
+//
+function moverJogador(){        // Função Responsavel Por Mover O Jogador E Delimitar A Movimentação Dele Dentro Do Canvas
+        if(moverEsquerda && jogadorObj.x > 0){
+            jogadorObj.x -= jogadorObj.velocidade;
+        }
+        if(moverDireita && jogadorObj.x < (cnv.width - jogadorObj.largura)){
+            jogadorObj.x += jogadorObj.velocidade;
+        }
+        if(moverCima && jogadorObj.y > 0){
+            jogadorObj.y -= jogadorObj.velocidade;
+        }
+        if(moverBaixo && jogadorObj.y < (cnv.height - jogadorObj.altura)){
+            jogadorObj.y += jogadorObj.velocidade;
+        }
+};
+//--------------------------------------------------------------------------------------------------------//
+//
+//
+//════════▓┣━▇_╮    Biblioteca De Funções Do Sistema Final   ╭_▇━┫▓════════════════════════════════════════//
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━//
+function updates(){
+
+    moverJogador(); // Atualiza Movimentação Do Personagem Na Tela
+
+    for (let i = 0; i < coletaveisArray.length; i++) {  // Função Responsavel Por Controlar Os Coletaveis
+    const coletavel = coletaveisArray[i];               // Captura O Coletavel Dentro Do Array Em Sua Posição
+    coletavel.x -= coletavelVelocidade;                 // A Posição No Eixo X É Constantemente Atualizado
+
+    
+    if(validarColisaoColetaveis(jogadorObj,coletavel)){ // Checa Constantemente Se Os Objetos Se Colidiram
+        console.log(`Coletavel ${i + 1} foi coletado`)  // Mensagem De Controle Descartavel
+        jogo.pontuacao++;                               // Ao Colidir Aumentar A Pontuação Em 1
+        coletouAudio.currentTime = 0;                   // Reseta O Tempo Do Audio De Coletado
+        coletouAudio.play();                            // Toca Audio De Coletado
+    if(jogadorObj.bolhapontos <= 147){
+        jogadorObj.bolhapontos+= 2.95;
+    }if(jogadorObj.bolhapontos > 147){
+        jogadorObj.bolhapontos = 147;
+    }
+//
+    if(jogo.pontuacao === jogo.multiplicador){          // Checa Se A Pontuação Atual É Igual O Multiplicador
+            jogo.multiplicador += 10;                   // Sempre que a Pontuação Chega Igual Ao Multiplicador, O Multiplicador Ganha Mais 10
+            gerarColetaveis();                          // Gera O Dobro De Coletaveis
+            gerarProjeteis();                           // Gera O Dobro De Projeteis
+            jogadorObj.boostSpeed = true;               // Boost De Velocidade É Ativado
+            aranhaDB.estado = 'DESCENDO'
+        if(jogadorObj.boostSpeed){                      // Quando O Bost De Velocidade É Ativado
+            jogadorObj.velocidade = 8;                  // O Jogador Ganha 8 Pixels De Velocidade
+            
+            setTimeout(() => {                          // Controlador, Temporizador
+            jogadorObj.velocidade = 5;                  // Define A Velocidade Para a Padrão
+            jogadorObj.boostSpeed = false;              // Retira O Boost De Velocidade Do Jogador
+            }, 5000);                                   // 5 segundos de boost
+        };  
+    };
+        resetaPosColetavel(coletavel);                  // Reseta A Posição Do Coletavel Atingido
+    } 
+    else if (coletavel.x + coletavel.largura < 0){      // Caso O Coletavel Saia Da Tela
+        resetaPosColetavel(coletavel);                  // O Mesmo É Redesenhado
+        jogo.docesPerdidos++;                           // Contabiliza Os Doces que foram perdidos
+    };
+    };
+
+//
+    for (let i = 0; i < projeteisArray.length; i++) {   // Função Responsavel Por Controlar Os Projeteis
+    const projetil = projeteisArray[i];                 // Captura O Projetil Dentro Do Array Em Sua Posição
+    projetil.x -= projeteisVelocidade;                  // A Posição No Eixo X É Constantemente Atualizada
+//
+    if(validarColisaoColetaveis(jogadorObj,projetil)){  // Checa Constantemente Se Os Objetos Se Colidiram
+        console.log(`projetil ${i + 1} foi coletado`)   // Mensagem De Controle Descartavel
+       if(jogadorObj.bolhacarregada){
+        resetaPosProjetil(projetil);
+        jogadorObj.bolhacarregada = false;
+        bolhaEstourando.currentTime = 0;
+        bolhaEstourando.play();
+       } else {
+        danoAudio.currentTime = 0;                      // Reseta O Tempo Do Audio De Dano
+        danoAudio.play();                               // Toca Audio De Dano
+        jogo.vidas--;                                   // Decrementa Pontuação De Vidas
+        jogadorObj.recebeuDano = true;                  // Controle Boleano De Dano
+        jogadorObj.velocidade = 5;                      // Define A Velocidade Para A Padrão
+        jogadorObj.boostSpeed = false;                  // Retira O Boost De Velocidade Ao Receber Dano Caso Esteja Ativo
+        setInterval(() => {                             // Controle Responsavel Por Retornar O Valor Do Dano Para Negativo
+            jogadorObj.recebeuDano = false;             // Controle De Dano Negativo
+        }, 500);                                        // 500 Milesimos De Segundo
+        resetaPosProjetil(projetil);                    // Reseta A Posição Do Projetil Atingido
+       }
+    }
+    else if (projetil.x + projetil.largura < 0){        // Caso O Projetil Saia Da Tela
+        resetaPosProjetil(projetil);                    // O Mesmo É Redesenhado
+        jogo.flechasDesviadas++;
+    };
+};
+
+    
+//
+
+
+//
+    if(jogo.vidas === 0){                               // Responsavel Por Controlar O Estado De Fim De Jogo
+    jogo.gameOver = true;
+    jogo.jogando = false;
+    coletaveisArray = [];                           // Limpa Array Coletaveis
+    projeteisArray = [];                            // Limpa Array Projeteis
+    };
+
+cranioSolto.forEach((cranio, index) => {
+    cranio.update();
+    cranio.draw(ctx);
+
+    // Verifica colisão com o jogador
+    if (validarColisaoColetaveis(cranio, jogadorObj)) {
+        console.log("O crânio atingiu o jogador!");
+        
+        // Ação após a colisão
+
+        danoAudio.currentTime = 0;                      // Reseta O Tempo Do Audio De Dano
+        danoAudio.play();                               // Toca Audio De Dano
+        jogo.vidas--;                                   // Decrementa Pontuação De Vidas
+        jogadorObj.recebeuDano = true;                  // Controle Boleano De Dano
+        jogadorObj.velocidade = 5;                      // Define A Velocidade Para A Padrão
+        jogadorObj.boostSpeed = false;                  // Retira O Boost De Velocidade Ao Receber Dano Caso Esteja Ativo
+        setInterval(() => {                             // Controle Responsavel Por Retornar O Valor Do Dano Para Negativo
+            jogadorObj.recebeuDano = false;             // Controle De Dano Negativo
+        }, 500);                                        // 500 Milesimos De Segundo
+        
+
+        // Remove o crânio para ele não colidir várias vezes seguidas
+        cranioSolto.splice(index, 1); 
+    }
+
+    //remove crânios que saíram da tela
+    if (cranio.y > cnv.height) {
+        cranioSolto.splice(index, 1);
+    }
+});
+};
+//
+function loop(){
+    ctx.clearRect(0,0,cnv.width,cnv.height);            // Responsavel Por Limpar A Tela Constantemente
+    ParallaxFundo.draw(cnv,ctx);
+    parallaxIntermedio.draw(cnv,ctx);
+    parallaxMedio.draw(cnv,ctx);
+    parallaxFrotal.draw(cnv,ctx);
+    
+    if(!jogo.gameOver){                                 // Controle De Estado De Jogo, Não Sendo FIM DE JOGO
+        updates();                                      // Updates São Carregados
+        
+        desenharJogador();                              // Desenha O Jogador Na Tela
+        
+        aranhaObj.draw(ctx,aranhaDB.x,aranhaDB.y); // Escolher onde vai ficar
+
+        if(jogadorObj.bolhacarregada){
+            bolhaprotecao.draw(ctx,jogadorObj.x,jogadorObj.y)
+        }
+        coletaveisArray.forEach(desenharColetavel);     // Para Cada Elemento Dentro Da Array Coletaveis É Desenhado Usando A Função desenharColetaveis
+        projeteisArray.forEach(desenharProjeteis);      // Para Cada Elemento Dentro Da Array Projeteis É Desenhado Usando A Função desenharProjeteis
+        cranioSolto.forEach(obj => {obj.update()});
+        cranioSolto.forEach(obj => {obj.draw(ctx)});
+{// Precisei trazer esta função para as flechas não ficarem passando sobre a foto do perfil do personagem
+function checarpontos(operacao){
+    if(operacao < 10){
+        return '0' + operacao;
+    }else{
+        return operacao;
+    }
+};
+//
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';    // Configurações De Texto
+    ctx.textAlign = 'center';                   // Configurações De Texto
+    ctx.font = '13px Arial';                    // Configurações De Texto
+    ctx.fillText(`Pontos: ${checarpontos(jogo.pontuacao)}`,  145, 100);  // Responsavel Por Desenhar A Pontuação
+    
+    ctx.fillStyle = '#3512a0';
+
+    
+                        //Menor 0 //Maior 147
+    ctx.fillRect(111,35,(jogadorObj.bolhapontos),20)
+    
+    ctx.drawImage(hudperso,0,0,252,96,10,10,hudperso.width,hudperso.height);
+    for (let i = 0; i < jogo.vidas; i++){               // Responsavel Por Desenhar A Quantidade De Vidas Na Tela Constantemente
+    ctx.drawImage(batheart,0,0,64,35,(i*32)+110,12,batheart.width,batheart.height)
+    };
+
+}
+    } else {                                            // Em Caso De Fim De Jogo For Verdadeiro
+        ctx.drawImage(telafim,0,0,cnv.width,cnv.height);// Desenha A Tela De Fim De Jogo
+        themesong.pause();                              // Pausa A Musica Tema Do Jogo
+    if(!jogo.gameOverAudioTocou){                       // Verifica Se Tocou Já Tocou A Musica De Fim De Jogo
+        gameOverAudio.currentTime = 0;                  // Coloca Ela Em Zero Segundos
+        gameOverAudio.play();                           // Toca A Musica De Fim De Jogo
+        jogo.gameOverAudioTocou = true;                 // Troca O Estado De False Para Verdadeiro
+    };
+//
+    ctx.fillStyle = 'red';
+    ctx.font = '600 45px verdana';
+    ctx.textAlign = 'center';
+    ctx.fillText('VOCÊ MORREU!', 210, cnv.height / 2 - 180)
+    ctx.font = '40px Arial';
+    ctx.fillText(`Pontuações:`, 210, cnv.height / 2 - 130);
+    ctx.font = '25px Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText(`Doces Coletados:   ${jogo.pontuacao}`,24, cnv.height / 2 - 90);
+    ctx.fillText(`Doces perdidos:     ${jogo.docesPerdidos}`,24, cnv.height / 2 - 60);
+    ctx.font = '800 18px verdana';
+    ctx.fillStyle = "rgb(0,0,0)"
+    ctx.strokeStyle = 'red'
+    ctx.lineWidth = 2;
+    ctx.strokeRect(cnv.width / 2 - 240, cnv.height / 2 + 250,475,50)
+    ctx.fillRect(cnv.width / 2 - 240, cnv.height / 2 + 250,475,50)
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'red';
+    ctx.fillText('Precione espaço para jogar novamente !!', cnv.width / 2, cnv.height / 2 + 280)
+};
+    requestAnimationFrame(loop,cnv);                    // Ativa A Função Loop Dentro Do Canvas
+};
+//
+function inicializarJogo(){                             // Função Responsavel Por Garantir Que Todas As Imagens Sejam Carregadas Antes Do Jogo Iniciar
+    let totalCarregados = 0;                            // Assets Carregados
+    const totalDeAssets = 7;                            // Total De Assets Existentes
+    function assetsCarregados() {                       // Função É Disparada A Cada Asset Carregado
+    totalCarregados++;                                  // Incrementa O Total Carregados
+    if (totalCarregados === totalDeAssets) {            // Quando Todos Os Assets Estão Carregados
+   ctx.drawImage(telaInit,0,0,cnv.width,cnv.height);    // Tela De Inicio É Apresentada Abaixo Do Menu
+    } 
+    };
+    // Carregando as imagens e dando retorno a função
+    background.onload = assetsCarregados;
+    skinMorcego.onload = assetsCarregados;
+    batheart.onload = assetsCarregados;
+    doce.onload = assetsCarregados;
+    projetilimg.onload = assetsCarregados;
+    telafim.onload = assetsCarregados;
+    telaInit.onload = assetsCarregados;
+    // Se as imagens já estiverem em cache/carregadas (onload não será disparado)
+    if (background.complete) assetsCarregados();
+    if (skinMorcego.complete) assetsCarregados();
+    if(batheart.complete) assetsCarregados();
+    if (doce.complete) assetsCarregados();
+    if (projetilimg.complete) assetsCarregados();
+    if(telafim.complete) assetsCarregados();
+    if(telaInit.completo) assetsCarregados();
+};
+//
+function jogarPressionado(){    // Função Responsavel Para Checar Quando O Botão Jogar For Clicado
+    themesong.play();           // Musica Tema Do Jogo Começa A Tocar
+    jogadorObj.y = (cnv.height / 2 - (jogadorObj.altura / 2) - 90); // Posição Do Jogador É Forçada A Esta Posição
+    gerarProjeteis();           // Gera Os Primeiros Projeteis
+    gerarColetaveis();          // Gera Os Primeiros Coletaveis        
+    loop();                     // Inicia O Loop Geral Do Sistema Do Jogo  
+};
+
+spritesDB.onload = inicializarJogo(); // Dispara A Função Que Inicia A Base Visual Do Jogo Apenas Quando Todas As Imagens Do DataBase Estiverem Carregadas.
+</script>
+</body>
+</html>
